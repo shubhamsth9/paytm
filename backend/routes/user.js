@@ -1,6 +1,10 @@
 const express = require("express");
-const userRouter = express.Router();
+const router = express.Router();
+const signupRouter = require("./signup");
+const signinRouter = require("./signin");
+
+router.use("/signup", signupRouter);
+router.use("/signin", signinRouter);
 
 
-
- module.exports = userRouter;
+ module.exports = router;
