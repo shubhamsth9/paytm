@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const uri = 'mongodb://localhost:27017/';
 mongoose.connect(uri);
@@ -13,10 +14,9 @@ const userSchema = new mongoose.Schema({
         maxLength: 30,
         trim: true
     },
-    password: {
+    password_hash: {
         type: String,
-        required: true,
-        minLength: 6,
+        required: true
     },
     firstName: {
         type: String,
@@ -31,6 +31,15 @@ const userSchema = new mongoose.Schema({
         maxLength: 50
     } 
 });
+
+userSchema.methods.createHash = async (plainPassword) => {
+    const saltRounds = 10;
+    return await bcrypt.hash(plainPassword, saltRounds);
+}
+
+userSchema.methods.validatePassword = async (candidatePassword) => {
+    return await bcrypt.compare(candidatePassword, this.password_hash);
+}
 
 const User = mongoose.model('User', userSchema);
 

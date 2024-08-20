@@ -1,10 +1,18 @@
 const { z } = require("zod");
 
-const user = z.object({
+const userSignup = z.object({
     username: z.string(),
     password: z.string(),
-    firstName: z.string(),
-    lastName: z.string()
+    firstName: z.string().optional(),
+    lastName: z.string().optional()
 });
 
-module.exports = user;
+const userLogin = z.object({
+    username: z.string(),
+    password: z.string()
+})
+
+module.exports = {
+    userSignup, 
+    userLogin
+}
