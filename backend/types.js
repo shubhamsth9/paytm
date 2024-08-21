@@ -12,7 +12,14 @@ const userLogin = z.object({
     password: z.string()
 })
 
+const userUpdate = z.object({
+    password: z.string().optional(),
+    firstName: z.string().optional(),
+    flastName: z.string().optional()
+})
+
 module.exports = {
     userSignup, 
-    userLogin
+    userLogin,
+    userUpdate
 }

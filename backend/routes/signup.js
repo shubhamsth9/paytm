@@ -5,7 +5,7 @@ const { User } = require("../db");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 
-router.post("", async (req, res) => {
+router.post("/", async (req, res) => {
     const payload = req.body;
     const parsedPayload = userSignup.safeParse(payload);
     if(!parsedPayload.success) {

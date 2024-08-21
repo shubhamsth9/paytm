@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../config");
 const router = express.Router();
 
-router.post("", async (req, res) => {
+router.post("/", async (req, res) => {
     const payload = req.body;
     const parsedPayload = userLogin.safeParse(payload);
     if(!parsedPayload.success){
