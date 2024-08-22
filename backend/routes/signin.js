@@ -2,7 +2,7 @@ const express = require("express");
 const { userLogin } = require("../types");
 const { User } = require("../db");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../config");
+const { JWT_SECRET } = require("../config");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -13,11 +13,11 @@ router.post("/", async (req, res) => {
             message: "Enter Username/Password in correct format"
         })
     }
-    const user = User.findOne({
+    const user = await User.findOne({
         username: parsedPayload.data.username
     })
     if(user){
-        if(await user.validatePassword(parsedPayload.data.password)){
+        if(await User.validatePassword(parsedPayload.data.password, user.password_hash)){
             const userId = user._id;
             const jwtToken = jwt.sign({userId}, JWT_SECRET);
             res.status(200).json({
@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
         }
         return;
     } else {
-        res.status(411).json({
+        return res.status(411).json({
             message: "Wrong username/password"
         })
     }

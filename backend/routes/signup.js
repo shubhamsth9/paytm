@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { userSignup } = require("../types");
-const { User } = require("../db");
+const { User, Account } = require("../db");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 
@@ -18,30 +18,36 @@ router.post("/", async (req, res) => {
     try {
         const existingUser = await User.findOne({
             username: parsedPayload.data.username
-        })
+        });
+
         if(existingUser){
-            res.status(411).json({
+            return res.status(411).json({
                 message: "Username already taken"
             })
+        } else {
+
+            const hashedPassword = await User.createHash(parsedPayload.data.password);
+            const newUser = await User.create({
+                username: parsedPayload.data.username,
+                firstName: parsedPayload.data.firstName,
+                lastName: parsedPayload.data.lastName,
+                password_hash: hashedPassword
+            })
+            
+            const userId = newUser._id;
+            
+            await Account.create({
+                userId: userId,
+                balance: 1 + Math.floor(Math.random()*10000)
+            })
+            
+            const jwtToken = jwt.sign({userId}, JWT_SECRET);
+            
+            return res.status(201).json({
+                message: "User created successfully",
+                token: jwtToken
+            });
         }
-
-        const newUser = new User({
-            username: parsedPayload.data.username,
-            firstName: parsedPayload.data.firstName,
-            lastName: parsedPayload.data.lastName
-        })
-
-        const hashedPassword = newUser.createHash(parsedPayload.data.password);
-        newUser.password_hash = hashedPassword;
-        await newUser.save();
-
-        const userId = user._id;
-        const jwtToken = jwt.sign({userId}, JWT_SECRET);
-         
-        res.status(201).json({
-            message: "User created successfully",
-            token: jwtToken
-        });
     } catch(err) {
         console.log(err);
     }

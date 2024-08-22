@@ -13,6 +13,7 @@ const userLogin = z.object({
 })
 
 const userUpdate = z.object({
+    username: z.string(),
     password: z.string().optional(),
     firstName: z.string().optional(),
     flastName: z.string().optional()

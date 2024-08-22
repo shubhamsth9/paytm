@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const connectionString = require('./routes/dbcred');
 
-const uri = 'mongodb://localhost:27017/';
-mongoose.connect(uri);
+// const uri = connectionString;
+
+mongoose.connect(connectionString);
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -32,17 +34,34 @@ const userSchema = new mongoose.Schema({
     } 
 });
 
-userSchema.methods.createHash = async (plainPassword) => {
-    const saltRounds = 10;
-    return await bcrypt.hash(plainPassword, saltRounds);
+userSchema.statics.createHash = async (plainPassword) => {
+    const salt = await bcrypt.genSalt(2);
+    return await bcrypt.hash(plainPassword, salt);
 }
 
-userSchema.methods.validatePassword = async (candidatePassword) => {
-    return await bcrypt.compare(candidatePassword, this.password_hash);
+userSchema.statics.validatePassword = async (candidatePassword, stored_password_hash) => {
+    // console.log(candidatePassword, stored_password_hash);
+    return await bcrypt.compare(candidatePassword, stored_password_hash);
 }
 
 const User = mongoose.model('User', userSchema);
 
+const accountSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    balance: {
+        type: Number,
+        required: true
+    },
+
+})
+
+const Account = mongoose.model('Account', accountSchema);
+
 module.exports = ({
-    User
+    User,
+    Account
 })
